@@ -1,6 +1,6 @@
 # gMSA2x3x-EKS-Installation
 
-As newer versions of EKS may not support "kubernetes.io/kubelet-serving" certificates in the near future what would cause the gMSA deploy scripts to [break](https://github.com/kubernetes-sigs/windows-gmsa/blob/master/admission-webhook/deploy/create-signed-cert.sh#L120_).
+As, currently, EKS do not support "kubernetes.io/kubelet-serving" certificates for non-node objects the gMSA deploy [scripts](https://github.com/kubernetes-sigs/windows-gmsa/blob/master/admission-webhook/deploy/create-signed-cert.sh#L120_) are not suitable for deploy in EKS.
 
 Thinking on an alternative, I developed this project which has two major objectives:
 
