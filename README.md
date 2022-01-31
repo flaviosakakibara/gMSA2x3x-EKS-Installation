@@ -39,7 +39,7 @@ First, ensure that all the prerequisites are in place. You’d need, in the comp
 3. The kubectl binary (https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-binary-with-curl-on-linux) with the current context pointing to the cluster you’d like to perform the installation;
 
     ```shell
-        $ curl -LO "https://dl.k8s.io/release/*$(*curl -L -s https://dl.k8s.io/release/stable.txt*)*/bin/linux/amd64/kubectl"
+        $ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         $ sudo chmod +x kubectl
         $ sudo chmod install kubectl /usr/local/bin
     ```
