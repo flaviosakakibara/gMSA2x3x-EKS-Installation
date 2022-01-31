@@ -8,6 +8,12 @@ REGION=$2
 SIGNER_NAME=$3
 
 #PERFORMING CHECKS
+AWS_CLI=$(aws --version)
+if [[ ! $AWS_CLI ]]
+then
+    echo "AWS binary not installed. Kindly check if it's installed before running this script"
+    exit 1
+fi
 DOCKER_RUNNING=$(docker ps)
 if [[ ! $DOCKER_RUNNING ]]
 then
@@ -111,7 +117,7 @@ sed -i.back "s/.*CA_BUNDLE=.*/        CA_BUNDLE=$CA \\\/g" deploy-gmsa-webhook.s
 
 #FIXING FILE FOR MACOS USERS
 MACOS=$(sw_vers)
-if [[ sw_vers ]]
+if [[ $MACOS ]]
 then
     sed -i.back2 "s/-w 0/-b 0/g" deploy-gmsa-webhook.sh
     sed -i.back2 "s/-w 0/-b 0/g" create-signed-cert.sh
