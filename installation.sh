@@ -6,6 +6,7 @@ export GOPROXY='direct'
 ACCOUNT=$1
 REGION=$2
 SIGNER_NAME=$3
+ESCAPED_SIGNER_NAME=${SIGNER_NAME/\//\\\/}
 
 #PERFORMING CHECKS
 AWS_CLI=$(aws --version)
@@ -87,7 +88,7 @@ sed -i.back "s/RUN go mod download/RUN export GOPROXY='direct' \&\& go mod downl
 
 #ADDING CUSTOM SIGNER NAME TO KUSTOMIZATION FILE
 echo '        - "--signer-name='$SIGNER_NAME'"' >> config/default/manager_auth_proxy_patch.yaml
-sed -i.back "s/  - example.com\/foo/  - ${SIGNER_NAME/\//\\\/}/g" config/e2e/rbac.yaml
+sed -i.back "s/  - example.com\/foo/  - ${ESCAPED_SIGNER_NAME}/g" config/e2e/rbac.yaml
 
 #ADDING CUSTOM NAME TO SIGNER
 make docker-build docker-push deploy-e2e DOCKER_PREFIX=$DOCKER_PREFIX
@@ -108,7 +109,7 @@ fi
 cd windows-gmsa/admission-webhook/deploy
 
 #CHANGE THE SIGNER NAME FOR THE ONE WE CONFIGURED PREVIOUSLY IN THE CA
-sed -i.back "s/signerName: kubernetes.io\/kubelet-serving/signerName: ${SIGNER_NAME/\//\\\/}/g" create-signed-cert.sh
+sed -i.back "s/signerName: kubernetes.io\/kubelet-serving/signerName: $ESCAPED_SIGNER_NAME/g" create-signed-cert.sh
 
 #GETTING THE CREATED CA CERTIFICATE AND UPDATING IT IN THE DEPLOYMENT FILE
 SECRET=$(kubectl get secrets --sort-by {.metadata.creationTimestamp} | grep signer-ca | tail -1 | awk '{print $1}')
