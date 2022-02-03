@@ -27,6 +27,12 @@ then
     echo "cfssl binary not installed. Kindly check if it's installed before running this script"
     exit 1
 fi
+CFSSLJSON=$(cfssljson -version)
+if [[ ! $CFSSLJSON ]]
+then
+    echo "cfssljson binary not installed. Kindly check if it's installed before running this script"
+    exit 1
+fi
 KUSTOMIZE=$(kustomize version)
 if [[ ! $KUSTOMIZE ]]
 then
