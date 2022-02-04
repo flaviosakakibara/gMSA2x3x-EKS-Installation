@@ -23,13 +23,13 @@ install_aws_cli() {
 install_docker() {
     echo "Installing Docker"
     sudo yum update -y
-    sudo amazon-linux-extras install docker
+    sudo amazon-linux-extras install docker -y
     sudo yum install docker -y
     sudo service docker start
     sudo systemctl enable docker
     sudo usermod -a -G docker ec2-user
     # after this command, a new session needs to be created
-    su - ec2-user
+    sudo su - ec2-user
 }
 install_cfssl() {
     echo "Installing CFSSL"

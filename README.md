@@ -100,18 +100,27 @@ Example:
             "Action": [
                 "ecr:CreateRepository",
                 "ecr:DescribeImages",
-                "eks:DescribeCluster"
+                "ecr:GetAuthorizationToken"
             ],
             "Resource": [
-                "arn:aws:eks:*:765427072911:cluster/*",
                 "arn:aws:ecr:*:*:repository/certmanager-ca-controller"
             ]
         },
         {
             "Sid": "VisualEditor1",
             "Effect": "Allow",
-            "Action": "ecr:GetAuthorizationToken",
-            "Resource": "*"
+            "Action": "eks:DescribeCluster",
+            "Resource": "arn:aws:eks:*:765427072911:cluster/*"
+        },
+        {
+            "Sid": "VisualEditor3",
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken"
+            ],
+            "Resource": [
+                "*"
+            ]
         }
     ]
 }
