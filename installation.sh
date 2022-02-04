@@ -5,8 +5,9 @@ export GOPROXY='direct'
 
 ACCOUNT=$1
 REGION=$2
-SIGNER_NAME=$3
-AL2=$4
+CLUSTER=$3
+SIGNER_NAME=${4:-'my-private-signer.com/my-signer'}
+AL2=$5
 ESCAPED_SIGNER_NAME=${SIGNER_NAME/\//\\\/}
 
 ACCOUNT_REGEX='^[0-9]{12}$'
@@ -136,6 +137,10 @@ then
     install_realpath
 fi
 #END OF CHECKS
+
+#CONFIGURING KUBECTL
+aws eks update-kubeconfig --name $CLUSTER --region $REGION
+#END OF KUBECTL CONFIGURATION
 
 #CREATING ECR REPOSITORY
 ECR_URL=$ACCOUNT.dkr.ecr.$REGION.amazonaws.com
