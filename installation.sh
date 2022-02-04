@@ -85,7 +85,7 @@ validate_parameters(){
 
 #CHECKING PARAMETERS
 validate_parameters
-run_al2_prereq_installation
+run_al2_prereq_installation $AL2
 
 #PERFORMING CHECKS
 AWS_CLI="aws --version"
