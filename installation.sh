@@ -6,56 +6,134 @@ export GOPROXY='direct'
 ACCOUNT=$1
 REGION=$2
 SIGNER_NAME=$3
+AL2=$4
 ESCAPED_SIGNER_NAME=${SIGNER_NAME/\//\\\/}
 
+ACCOUNT_REGEX='^[0-9]{12}$'
+REGION_REGEX='^[a-zA-Z0-9-]{1,128}$'
+test_command(){
+
+    $@ > /dev/null 2>&1
+    if [ $? == '127' ]
+    then
+        return 1
+    else
+        return 0
+    fi
+}
+
+run_al2_prereq_installation(){
+
+    if [[ $1 ]]
+    then
+        echo "Installing Amazon Linux 2 dependencies"
+        bash ./AL2-dependency-installation.sh
+    fi
+}
+
+validate_regex(){
+    PARAMETER=$1
+    REGEX=$2
+    [[ $PARAMETER =~ $REGEX ]] && return 0 || return 1
+    return $?
+}
+validate_account(){
+    ACCOUNT=$1
+    validate_regex $ACCOUNT $ACCOUNT_REGEX
+    return $?
+}
+validate_region(){
+    REGION=$1
+    validate_regex $REGION $REGION_REGEX
+    return $?
+}
+validate_AL2(){
+    [[ '$1' != 'AL2' ]] && return 0 || return 1
+}
+validate_parameters(){
+
+    validate_account $ACCOUNT
+    if [[ $? -eq 0 ]]
+    then 
+        echo "Valid Account. Proceeding"
+    else
+        echo "Invalid Account. Aborting"
+        exit 1
+    fi
+    validate_region $REGION
+    if [[ $? -eq 0 ]]
+    then
+        echo "Valid region. Proceeding"
+    else
+        echo "Invalid region. Aborting"
+        exit 1
+    fi
+    if [ -n $AL2 ]
+    then
+        validate_AL2 $AL2
+        if [[ $? -eq 0 ]]
+        then
+            echo "Valid OS parameter. Proceeding"
+        else
+            echo "Invalid OS parameter. Aborting"
+            exit 1
+        fi
+    fi
+    
+}
+
+#CHECKING PARAMETERS
+validate_parameters
+run_al2_prereq_installation
+
 #PERFORMING CHECKS
-AWS_CLI=$(aws --version)
-if [[ ! $AWS_CLI ]]
+AWS_CLI="aws --version"
+if  ! test_command $AWS_CLI;
 then
-    echo "AWS binary not installed. Kindly check if it's installed before running this script"
-    exit 1
+    echo "AWS binary not installed. Please install it before running this script."
+    install_aws_cli
 fi
-DOCKER_RUNNING=$(docker ps)
-if [[ ! $DOCKER_RUNNING ]]
+DOCKER="docker version"
+if ! test_command $DOCKER;
 then
-    echo "Not able to access the Docker Daemon. Kindly check if it's running before running this script"
-    exit 1
+    echo "Docker binary not installed. Please install it before running this script."
+    install_docker
 fi
-CFSSL=$(cfssl version)
-if [[ ! $CFSSL ]]
+CFSSL="cfssl version"
+if ! test_command $CFSSL;
 then
-    echo "cfssl binary not installed. Kindly check if it's installed before running this script"
-    exit 1
+    echo "cfssl binary not installed. Please install it before running this script."
+    install_cfssl
 fi
-CFSSLJSON=$(cfssljson -version)
-if [[ ! $CFSSLJSON ]]
+CFSSLJSON="cfssljson -version"
+if ! test_command $CFSSLJSON;
 then
-    echo "cfssljson binary not installed. Kindly check if it's installed before running this script"
-    exit 1
+    echo "cfssljson binary not installed. Please install it before running this script."
+    install_cfssljson
 fi
-KUSTOMIZE=$(kustomize version)
-if [[ ! $KUSTOMIZE ]]
+KUSTOMIZE="kustomize version"
+if ! test_command $KUSTOMIZE;
 then
-    echo "kustomize binary not installed. Kindly check if it's installed before running this script"
-    exit 1
+    echo "kustomize binary not installed. Please install it before running this script."
+    install_kustomize
 fi
-GIT=$(git version)
-if [[ ! $GIT ]]
+GIT="git version"
+if ! test_command $GIT;
 then
-    echo "git binary not installed. Kindly check if it's installed before running this script"
-    exit 1
+    echo "git binary not installed. Please install it before running this script."
+    install_git
 fi
-KUBECTL=$(kubectl version)
-if [[ ! $KUBECTL ]]
+KUBECTL="kubectl version"
+if ! test_command $KUBECTL;
 then
-    echo "kubectl binary not installed. Kindly check if it's installed before running this script"
-    exit 1
+    echo "kubectl binary not installed. Please install it before running this script."
+    install_kubectl
 fi
-REALPATH=$(realpath --version)
-if [[ ! $REALPATH ]]
+REALPATH="realpath --version"
+if ! test_command $REALPATH;
 then
-    echo "realpath binary not installed. Kindly check if it's installed before running this script"
-    exit 1
+    echo "realpath binary not installed. Please install it before running this script."
+    install_realpath
 fi
 #END OF CHECKS
 
