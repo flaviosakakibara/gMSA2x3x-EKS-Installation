@@ -81,3 +81,38 @@ And the installation script again:
 ```shell
 $ bash installation.sh 765427072911 eu-west-1 my-private-signer.com/my-signer
 ```
+
+## Permissions needed
+ecr:GetAuthorizationToken
+ecr:CreateRepository
+ecr:DescribeImages
+eks:DescribeCluster
+
+Example:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ecr:CreateRepository",
+                "ecr:DescribeImages",
+                "eks:DescribeCluster"
+            ],
+            "Resource": [
+                "arn:aws:eks:*:765427072911:cluster/*",
+                "arn:aws:ecr:*:*:repository/certmanager-ca-controller"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "ecr:GetAuthorizationToken",
+            "Resource": "*"
+        }
+    ]
+}
+```

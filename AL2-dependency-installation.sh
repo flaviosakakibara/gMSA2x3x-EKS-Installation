@@ -28,6 +28,8 @@ install_docker() {
     sudo service docker start
     sudo systemctl enable docker
     sudo usermod -a -G docker ec2-user
+    # after this command, a new session needs to be created
+    su - ec2-user
 }
 install_cfssl() {
     echo "Installing CFSSL"
