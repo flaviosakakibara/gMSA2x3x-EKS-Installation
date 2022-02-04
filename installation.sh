@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+# set -x
 export GOPROXY='direct'
 
 ACCOUNT=$1
@@ -92,49 +92,49 @@ AWS_CLI="aws --version"
 if  ! test_command $AWS_CLI;
 then
     echo "AWS binary not installed. Please install it before running this script."
-    install_aws_cli
+    exit 1
 fi
 DOCKER="docker version"
 if ! test_command $DOCKER;
 then
     echo "Docker binary not installed. Please install it before running this script."
-    install_docker
+    exit 1
 fi
 CFSSL="cfssl version"
 if ! test_command $CFSSL;
 then
     echo "cfssl binary not installed. Please install it before running this script."
-    install_cfssl
+    exit 1
 fi
 CFSSLJSON="cfssljson -version"
 if ! test_command $CFSSLJSON;
 then
     echo "cfssljson binary not installed. Please install it before running this script."
-    install_cfssljson
+    exit 1
 fi
 KUSTOMIZE="kustomize version"
 if ! test_command $KUSTOMIZE;
 then
     echo "kustomize binary not installed. Please install it before running this script."
-    install_kustomize
+    exit 1
 fi
 GIT="git version"
 if ! test_command $GIT;
 then
     echo "git binary not installed. Please install it before running this script."
-    install_git
+    exit 1
 fi
 KUBECTL="kubectl version"
 if ! test_command $KUBECTL;
 then
     echo "kubectl binary not installed. Please install it before running this script."
-    install_kubectl
+    exit 1
 fi
 REALPATH="realpath --version"
 if ! test_command $REALPATH;
 then
     echo "realpath binary not installed. Please install it before running this script."
-    install_realpath
+    exit 1
 fi
 #END OF CHECKS
 
