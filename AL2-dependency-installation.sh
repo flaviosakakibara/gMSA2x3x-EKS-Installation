@@ -22,31 +22,50 @@ install_aws_cli() {
 }
 install_docker() {
     echo "Installing Docker"
-
+    sudo yum update -y
+    sudo amazon-linux-extras install docker
+    sudo yum install docker
+    sudo service docker start
+    sudo systemctl enable docker
+    sudo usermod -a -G docker ec2-user
 }
 install_cfssl() {
     echo "Installing CFSSL"
-
+    VERSION=$(curl --silent "https://api.github.com/repos/cloudflare/cfssl/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+    VNUMBER=${VERSION#"v"}
+    wget https://github.com/cloudflare/cfssl/releases/download/${VERSION}/cfssl_${VNUMBER}_linux_amd64 -O cfssl
+    chmod +x cfssl
+    sudo mv cfssl /usr/local/bin
 }
 install_cfssljson() {
     echo "Installing CFSSLJSON"
-
+    VERSION=$(curl --silent "https://api.github.com/repos/cloudflare/cfssl/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+    VNUMBER=${VERSION#"v"}
+    wget https://github.com/cloudflare/cfssl/releases/download/${VERSION}/cfssljson_${VNUMBER}_linux_amd64 -O cfssljson
+    chmod +x cfssljson
+    sudo mv cfssljson /usr/local/bin
 }
 install_kustomize() {
     echo "Installing Kustomize"
-
+    curl --silent --location --remote-name \
+    "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v3.2.3/kustomize_kustomize.v3.2.3_linux_amd64" && \
+    chmod a+x kustomize_kustomize.v3.2.3_linux_amd64 && \
+    sudo mv kustomize_kustomize.v3.2.3_linux_amd64 /usr/local/bin/kustomize
 }
 install_git() {
     echo "Installing Git"
-
+    sudo yum install -y git
 }
 install_kubectl() {
     echo "Installing Kubectl"
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    sudo chmod +x kubectl
+    sudo install kubectl /usr/local/bin
 
 }
 install_realpath() {
     echo "Installing realpath"
-
+    sudo yum install -y coreutils
 }
 
 #PERFORMING CHECKS
