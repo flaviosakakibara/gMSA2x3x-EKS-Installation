@@ -158,7 +158,7 @@ fi
 #END OF REPOSITORY CREATION
 
 #INITIATING BUILD AND INSTALLATION OF CA
-aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $ECR_URL
+aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_URL
 
 if [[ -d "signer-ca" ]]
 then
@@ -180,7 +180,7 @@ echo '        - "--signer-name='$SIGNER_NAME'"' >> config/default/manager_auth_p
 sed -i.back "s/  - example.com\/foo/  - ${ESCAPED_SIGNER_NAME}/g" config/e2e/rbac.yaml
 
 #ADDING CUSTOM NAME TO SIGNER
-sudo make docker-build docker-push deploy-e2e DOCKER_PREFIX=$DOCKER_PREFIX
+make docker-build docker-push deploy-e2e DOCKER_PREFIX=$DOCKER_PREFIX
 
 cd ..
 
