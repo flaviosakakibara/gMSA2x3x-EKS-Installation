@@ -180,7 +180,7 @@ echo '        - "--signer-name='$SIGNER_NAME'"' >> config/default/manager_auth_p
 sed -i.back "s/  - example.com\/foo/  - ${ESCAPED_SIGNER_NAME}/g" config/e2e/rbac.yaml
 
 #ADDING CUSTOM NAME TO SIGNER
-make docker-build docker-push deploy-e2e DOCKER_PREFIX=$DOCKER_PREFIX
+sudo make docker-build docker-push deploy-e2e DOCKER_PREFIX=$DOCKER_PREFIX
 
 cd ..
 
