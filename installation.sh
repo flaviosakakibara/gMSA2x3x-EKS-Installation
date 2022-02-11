@@ -159,6 +159,7 @@ fi
 
 #INITIATING BUILD AND INSTALLATION OF CA
 echo "Starting CA installation"
+echo "aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_URL"
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_URL
 
 if [[ -d "signer-ca" ]]
