@@ -35,7 +35,7 @@ install_cfssl() {
     VNUMBER=${VERSION#"v"}
     wget https://github.com/cloudflare/cfssl/releases/download/${VERSION}/cfssl_${VNUMBER}_linux_amd64 -O cfssl
     chmod +x cfssl
-    sudo mv cfssl /usr/local/bin
+    sudo mv cfssl /usr/local/sbin
 }
 install_cfssljson() {
     echo "Installing CFSSLJSON"
@@ -43,7 +43,7 @@ install_cfssljson() {
     VNUMBER=${VERSION#"v"}
     wget https://github.com/cloudflare/cfssl/releases/download/${VERSION}/cfssljson_${VNUMBER}_linux_amd64 -O cfssljson
     chmod +x cfssljson
-    sudo mv cfssljson /usr/local/bin
+    sudo mv cfssljson /usr/local/sbin
 }
 install_kustomize() {
     echo "Installing Kustomize"
@@ -60,7 +60,7 @@ install_kubectl() {
     echo "Installing Kubectl"
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     sudo chmod +x kubectl
-    sudo install kubectl /usr/local/bin
+    sudo install kubectl /usr/local/sbin
 
 }
 install_realpath() {
