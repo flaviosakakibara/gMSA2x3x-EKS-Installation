@@ -159,7 +159,6 @@ fi
 
 #INITIATING BUILD AND INSTALLATION OF CA
 echo "Starting CA installation"
-echo "aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_URL"
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_URL
 
 if [[ -d "signer-ca" ]]
@@ -179,6 +178,8 @@ sed -i.back "s/RUN go mod download/RUN export GOPROXY='direct' \&\& go mod downl
 
 #ADDING CUSTOM SIGNER NAME TO KUSTOMIZATION FILE
 echo '        - "--signer-name='$SIGNER_NAME'"' >> config/default/manager_auth_proxy_patch.yaml
+echo '        - "--certificate-duration=87600h0m0s"' >> config/default/manager_auth_proxy_patch.yaml
+
 sed -i.back "s/  - example.com\/foo/  - ${ESCAPED_SIGNER_NAME}/g" config/e2e/rbac.yaml
 
 #ADDING CUSTOM NAME TO SIGNER
