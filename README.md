@@ -100,7 +100,15 @@ Example:
             "Action": [
                 "ecr:CreateRepository",
                 "ecr:DescribeImages",
-                "ecr:GetAuthorizationToken"
+                "ecr:GetAuthorizationToken",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:PutImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload"
             ],
             "Resource": [
                 "arn:aws:ecr:*:*:repository/certmanager-ca-controller"
