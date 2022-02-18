@@ -94,10 +94,10 @@ then
     echo "AWS binary not installed. Please install it before running this script."
     exit 1
 fi
-DOCKER="docker version"
+DOCKER="docker ps"
 if ! test_command $DOCKER;
 then
-    echo "Docker binary not installed. Please install it before running this script."
+    echo "Docker daemon not running. Please make sure it's running it before executing this script."
     exit 1
 fi
 CFSSL="cfssl version"
@@ -190,8 +190,10 @@ cd ..
 #END OF CA BUILD AND INSTALLATION
 
 #CONFIGURATION OF gMSA INSTALLATION SCRIPT TO USE ISNTALLED CA
+echo "Starting gMSA installation"
 if [[ -d "windows-gmsa" ]]
 then
+    echo "Removing existing folder"
     rm -rf windows-gmsa
     git clone https://github.com/kubernetes-sigs/windows-gmsa.git
 else
@@ -204,8 +206,8 @@ cd windows-gmsa/admission-webhook/deploy
 sed -i.back "s/signerName: kubernetes.io\/kubelet-serving/signerName: $ESCAPED_SIGNER_NAME/g" create-signed-cert.sh
 
 #GETTING THE CREATED CA CERTIFICATE AND UPDATING IT IN THE DEPLOYMENT FILE
-SECRET=$(kubectl get secrets --sort-by {.metadata.creationTimestamp} | grep signer-ca | tail -1 | awk '{print $1}')
-CA=$(kubectl get secrets $SECRET -o jsonpath='{.data.tls\.crt}')
+SECRET=$(kubectl get secrets --sort-by {.metadata.creationTimestamp} -n signer-ca-system | grep signer-ca | tail -1 | awk '{print $1}')
+CA=$(kubectl get secrets $SECRET -o jsonpath='{.data.tls\.crt}' -n signer-ca-system)
 sed -i.back "s/.*CA_BUNDLE=.*/        CA_BUNDLE=$CA \\\/g" deploy-gmsa-webhook.sh
 
 #FIXING FILE FOR MACOS USERS
