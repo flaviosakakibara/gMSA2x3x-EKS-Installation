@@ -25,6 +25,7 @@ gmsa_already_installed(){
 
 deleting_existing_gmsa(){
 
+    echo 'Deleting existing gMSA installation'
     kubectl delete clusterrole gmsa-webhook-gmsa-webhook-rbac-role
     kubectl delete clusterrolebinding gmsa-webhook-gmsa-webhook-binding-to-gmsa-webhook-gmsa-webhook-rbac-role
     kubectl delete deployment gmsa-webhook -n gmsa-webhook
