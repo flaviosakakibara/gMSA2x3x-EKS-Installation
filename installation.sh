@@ -12,6 +12,29 @@ ESCAPED_SIGNER_NAME=${SIGNER_NAME/\//\\\/}
 
 ACCOUNT_REGEX='^[0-9]{12}$'
 REGION_REGEX='^[a-zA-Z0-9-]{1,128}$'
+
+signer_already_installed(){
+    kubectl get ns signer-ca-system 2>&1 > /dev/null
+    return $?
+}
+
+gmsa_already_installed(){
+    kubectl get ns gmsa-webhook 2>&1 > /dev/null
+    return $?
+}
+
+deleting_existing_gmsa(){
+
+    kubectl delete clusterrole gmsa-webhook-gmsa-webhook-rbac-role
+    kubectl delete clusterrolebinding gmsa-webhook-gmsa-webhook-binding-to-gmsa-webhook-gmsa-webhook-rbac-role
+    kubectl delete deployment gmsa-webhook -n gmsa-webhook
+    kubectl delete service gmsa-webhook -n gmsa-webhook
+    kubectl delete ValidatingWebhookConfiguration gmsa-webhook
+    kubectl delete MutatingWebhookConfiguration gmsa-webhook
+    kubectl delete ns gmsa-webhook
+
+}
+
 test_command(){
 
     $@ > /dev/null 2>&1
@@ -86,8 +109,7 @@ validate_parameters(){
 #CHECKING PARAMETERS
 validate_parameters
 run_al2_prereq_installation $AL2
-
-#PERFORMING CHECKS
+#____________PERFORMING CHECKS
 AWS_CLI="aws --version"
 if  ! test_command $AWS_CLI;
 then
@@ -136,13 +158,23 @@ then
     echo "realpath binary not installed. Please install it before running this script."
     exit 1
 fi
-#END OF CHECKS
+#____________END OF CHECKS
 
 #CONFIGURING KUBECTL
 aws eks update-kubeconfig --name $CLUSTER --region $REGION
-#END OF KUBECTL CONFIGURATION
 
-#CREATING ECR REPOSITORY
+#REMOVING PREVIOUS GMSA IF NEEDED
+if gmsa_already_installed;
+then
+    deleting_existing_gmsa
+    while gmsa_already_installed
+    do
+        echo 'Waiting for the deletion of previous namespace'
+        sleep 1
+    done
+fi
+
+#____________CREATING ECR REPOSITORY
 ECR_URL=$ACCOUNT.dkr.ecr.$REGION.amazonaws.com
 REPOSITORY_NAME=certmanager-ca-controller
 DOCKER_PREFIX=$ECR_URL/certmanager-ca-
@@ -155,9 +187,9 @@ then
 else
     echo "Repository already created"
 fi
-#END OF REPOSITORY CREATION
+#____________END OF REPOSITORY CREATION
 
-#INITIATING BUILD AND INSTALLATION OF CA
+#____________INITIATING BUILD AND INSTALLATION OF CA
 echo "Starting CA installation"
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_URL
 
@@ -170,26 +202,36 @@ else
 fi
 cd signer-ca
 
-#ADDING HOST NETWORK TO MAKEFILE
 sed -i.back 's/docker build . -t \${DOCKER_IMAGE}/docker build . -t \${DOCKER_IMAGE} --network=host/g' Makefile
-
-#UPDATING GO PROXY IN DOCKERFILE
 sed -i.back "s/RUN go mod download/RUN export GOPROXY='direct' \&\& go mod download/g" Dockerfile
 
-#ADDING CUSTOM SIGNER NAME TO KUSTOMIZATION FILE
 echo '        - "--signer-name='$SIGNER_NAME'"' >> config/default/manager_auth_proxy_patch.yaml
 echo '        - "--certificate-duration=87600h0m0s"' >> config/default/manager_auth_proxy_patch.yaml
 
 sed -i.back "s/  - example.com\/foo/  - ${ESCAPED_SIGNER_NAME}/g" config/e2e/rbac.yaml
 
-#ADDING CUSTOM NAME TO SIGNER
+#CHECKING IF SOLUTION IS INSTALLED, DELETING FIRST IF IT'S
+if signer_already_installed;
+then
+    echo 'uninstall: ${E2E_CA}' >> Makefile
+    echo '	cd config/e2e && kustomize edit set image controller=${DOCKER_IMAGE}' >> Makefile
+    echo '	kustomize build config/e2e | kubectl delete -f -' >> Makefile
+    echo 'Uninstalling existing version of signer-ca'
+    make uninstall
+    #WAITING FOR NAMESPACE DELETION TO COMPLETE
+    while signer_already_installed
+    do
+        echo 'Waiting for the deletion of the previous namespace'
+        sleep 1
+    done
+fi
 make docker-build docker-push deploy-e2e DOCKER_PREFIX=$DOCKER_PREFIX
 
 cd ..
 
-#END OF CA BUILD AND INSTALLATION
+#____________END OF CA BUILD AND INSTALLATION
 
-#CONFIGURATION OF gMSA INSTALLATION SCRIPT TO USE ISNTALLED CA
+#____________CONFIGURATION OF gMSA INSTALLATION SCRIPT TO USE ISNTALLED CA
 echo "Starting gMSA installation"
 if [[ -d "windows-gmsa" ]]
 then
